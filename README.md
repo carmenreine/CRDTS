@@ -90,3 +90,60 @@ Para evitar conflictos con otras instalaciones de Python y mantener organizadas 
 ## Autor
 
 Este proyecto fue desarrollado como parte de una práctica educativa para explorar el funcionamiento interno de los CRDTs y la colaboración en sistemas distribuidos.
+
+
+
+
+# Editor de Texto Colaborativo en Web con Yjs y Quill (Node.js + WebSockets)
+Este proyecto implementa un editor de texto colaborativo en navegador que permite a múltiples usuarios editar el mismo documento en tiempo real. Utiliza la librería CRDT Yjs para sincronizar el contenido entre los clientes y el editor de texto Quill para la interfaz. La comunicación entre clientes se realiza mediante WebSockets sobre un servidor Node.js.
+
+# Características
+1. Edición en tiempo real entre múltiples pestañas o dispositivos
+2. Sincronización automática sin conflictos gracias a Yjs (CRDT)
+3. Interfaz rica con soporte para formato (negrita, cursiva, enlaces)
+4. Comunicación mediante WebSockets (sin necesidad de backend complejo)
+5. Arquitectura distribuida basada en documentos compartidos
+
+# Tecnologías usadas
+- Node.js
+- Yjs (CRDT)
+- WebSockets (ws)
+- Quill (editor WYSIWYG)
+- HTML5 y ECMAScript Modules
+
+# Estructura de archivos
+- server.js 
+Servidor WebSocket que sincroniza los cambios del documento entre todos los clientes conectados.
+- index.html 
+Interfaz de usuario con el editor Quill y la integración con Yjs.
+- package.json 
+Archivo de configuración con las dependencias del servidor.
+
+# Cómo ejecutar
+1. Instala las dependencias en la raíz del proyecto:
+'npm install'
+2. Inicia el servidor WebSocket:
+'npm start'
+Esto ejecutará server.js en el puerto 1234
+3. Abre index.html en dos pestañas del navegador (usando Live Server en VS Code o un servidor local).
+4. Escribe en una pestaña y observa cómo los cambios aparecen en tiempo real en la otra.
+
+# Funcionamiento interno
+El documento compartido se gestiona con Yjs, que garantiza una sincronización sin conflictos incluso en presencia de ediciones concurrentes.
+
+Cada cliente mantiene su propia instancia del documento y comunica los cambios mediante WebSocket al servidor.
+
+El servidor retransmite los cambios a todos los demás clientes conectados.
+
+Quill actúa como la interfaz visual del documento, y sus cambios se sincronizan bidireccionalmente con Yjs.
+
+# Limitaciones actuales
+- El contenido no se guarda en disco (no hay persistencia).
+- Todos los usuarios colaboran en una única sala (demo-room).
+- No hay control de versiones ni gestión de usuarios.
+
+# Mejoras futuras
+- Soporte para múltiples documentos o salas
+- Persistencia del contenido mediante base de datos
+- Gestión de usuarios y permisos
+- Historial de cambios y versiones
