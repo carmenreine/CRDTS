@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" /> <!-- Define la codificación de caracteres -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <!-- Escalado responsivo para móviles -->
+  <title>Editor en Tiempo Real</title> <!-- Título de la pestaña -->
+
+  <!-- Quill -->
+  <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet"> <!-- Estilos del editor Quill -->
+</head>
+<body>
+  <div id="editor" style="height: 300px;"></div> <!-- Contenedor del editor con altura definida -->
+
+  <script type="module">
+    import * as Y from 'https://cdn.jsdelivr.net/npm/yjs@13.5.43/+esm'; // Importa Yjs desde CDN (como módulo ES)
+    import Quill from 'https://cdn.jsdelivr.net/npm/quill@1.3.7/+esm'; // Importa Quill desde CDN
+
+    const ydoc = new Y.Doc(); // Crea un nuevo documento Yjs (estructura colaborativa)
+    const ytext = ydoc.getText('quill'); // Obtiene un tipo de texto colaborativo con nombre 'quill'
+
+    const quill = new Quill('#editor', { // Inicializa el editor Quill en el div con id 'editor'
+      theme: 'snow', // Tema de apariencia
+      placeholder: 'Escribe aquí...', // Texto de ayuda inicial
+      modules: {
+        toolbar: [['bold', 'italic'], ['link']] // Herramientas disponibles en la barra (negrita, cursiva, enlace)
+      }
+    });
+
+    // Flag para evitar bucles de sincronización
+    let isApplyingRemoteUpdate = false; // Indica si se está aplicando un cambio remoto (para no volver a escribir en Yjs)
+
+    // Yjs → Quill
+    ytext.observe(() => { // Observa cambios en el documento Yjs
+      if (isApplyingRemoteUpdate) return; // Evita bucle si se está aplicando un cambio remoto
+
+      const yContent = ytext.toString(); // Obtiene el contenido actual de Yjs
+      const quillContent = quill.getText(); // Obtiene el contenido actual de Quill
+
+      if (yContent !== quillContent) { // Si hay diferencia entre ambos contenidos...
+        isApplyingRemoteUpdate = true; // Marca que se está aplicando un cambio remoto
+        const range = quill.getSelection(); // Guarda la selección actual
+        quill.setText(yContent); // Actualiza el texto en Quill con el contenido de Yjs
+        if (range) quill.setSelection(range); // Restaura la selección previa si existía
+        isApplyingRemoteUpdate = false; // Libera el flag
+      }
+    });
+
+    // Quill → Yjs
+    quill.on('text-change', () => { // Cuando cambia el texto en Quill
+      if (isApplyingRemoteUpdate) return; // Evita bucle si el cambio vino de Yjs
+
+      isApplyingRemoteUpdate = true; // Marca que se inicia actualización remota
+      ytext.delete(0, ytext.length); // Borra todo el contenido previo en Yjs
+      ytext.insert(0, quill.getText()); // Inserta el nuevo contenido de Quill en Yjs
+      isApplyingRemoteUpdate = false; // Libera el flag
+    });
+
+    // WebSocket
+    const socket = new WebSocket('ws://localhost:1234'); // Conecta con el servidor WebSocket local en el puerto 1234
+    socket.binaryType = 'arraybuffer'; // Define el tipo de datos como binario (para Yjs)
+
+    socket.onmessage = (event) => { // Cuando se recibe un mensaje del servidor
+      const update = new Uint8Array(event.data); // Convierte los datos a Uint8Array
+      Y.applyUpdate(ydoc, update); // Aplica la actualización al documento Yjs
+    };
+
+    ydoc.on('update', (update) => { // Cuando hay una actualización local del documento Yjs
+      socket.send(update); // Se envía al servidor WebSocket para compartir con otros clientes
+    });
+  </script>
+</body>
+</html>
+
+
+
