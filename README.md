@@ -87,9 +87,6 @@ Para evitar conflictos con otras instalaciones de Python y mantener organizadas 
 - Visualización de actividad remota por usuario
 - Reconexión tras desconexión inesperada
 
-## Autor
-
-Este proyecto fue desarrollado como parte de una práctica educativa para explorar el funcionamiento interno de los CRDTs y la colaboración en sistemas distribuidos.
 
 
 
@@ -147,3 +144,9 @@ Quill actúa como la interfaz visual del documento, y sus cambios se sincronizan
 - Persistencia del contenido mediante base de datos
 - Gestión de usuarios y permisos
 - Historial de cambios y versiones
+
+
+
+## Autor
+
+Este proyecto fue desarrollado como parte de una práctica educativa para explorar el funcionamiento interno de los CRDTs y la colaboración en sistemas distribuidos.
