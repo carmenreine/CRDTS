@@ -1,48 +1,39 @@
-# Editor Colaborativo en Consola con Python y CRDT (RGA)
+# 📝 EDITORES COLABORATIVOS CON CRDTS
 
-Este proyecto implementa un editor de texto colaborativo en consola, desarrollado en Python, que permite a múltiples usuarios editar el mismo documento en tiempo real mediante un CRDT del tipo RGA (Replicated Growable Array). La comunicación se realiza mediante sockets TCP, y la interfaz de usuario se muestra en consola con la biblioteca `curses`.
+Este repositorio contiene **dos editores de texto colaborativos** que permiten la edición en tiempo real por múltiples usuarios sin conflictos, utilizando **CRDTs (Conflict-free Replicated Data Types)**:
 
-## Características
+- Un **editor en consola** implementado en Python desde cero con el algoritmo **RGA (Replicated Growable Array)**.
+- Un **editor web** basado en la librería **Yjs** con una interfaz creada usando  **Quill** y sincronización por WebSockets.
 
-- Edición colaborativa en tiempo real
-- Sincronización sin conflictos mediante CRDT (RGA)
-- Interfaz interactiva en consola
+Estas implementaciones forman parte de un trabajo académico sobre **sistemas distribuidos y CRDTs**.
+
+---
+
+## 🖥️ EDITOR COLABORATIVO EN CONSOLA (Python + RGA)
+
+### Características
+
+- Edición colaborativa en tiempo real desde la terminal
+- CRDT RGA (implementado desde cero)
+- Sincronización automática mediante sockets TCP
+- Interfaz basada en `curses` (navegable con teclado)
 - Soporte para múltiples usuarios conectados simultáneamente
 - Manejo de saltos de línea
-- Sin servidor central que coordine los cambios: los conflictos se resuelven automáticamente
 
-## Tecnologías usadas
+### Tecnologías usadas
 
 - Python 3
-- `socket`, `threading` y `pickle` para red y concurrencia
-- `curses` para la interfaz de texto
-- CRDT RGA implementado desde cero
+- `socket`, `threading` y `pickle` para concurrencia y red
+- `curses` para la interfaz en consola
+- CRDT RGA propio (estructura distribuida sin conflictos)
 
-## Estructura de archivos
+### Estructura de archivos
 
-- `servidor.py` – Lógica del servidor que mantiene el estado global del documento y distribuye las operaciones.
-- `cliente_editor.py` – Cliente en consola que permite editar el documento de forma colaborativa.
-- `rga.py` – Implementación del CRDT RGA (estructura de datos distribuida que permite inserciones y borrados sin conflicto).
+- `servidor_sync.py` – Servidor que mantiene el estado global y distribuye cambios
+- `cliente_editor_saltos.py` – Cliente que muestra el editor en consola
+- `rga.py` – Implementación del algoritmo RGA (CRDT)
 
-## Cómo ejecutar
-
-1. Clona este repositorio o descarga los archivos.
-2. En una terminal, inicia el servidor:
-
-   ```bash
-   python3 servidor.py
-   ```
-
-3. En otra(s) terminal(es), inicia uno o más clientes:
-
-   ```bash
-   python3 cliente_editor.py
-   ```
-
-4. Introduce un nombre de usuario cuando se te solicite.
-5. Empieza a escribir. Todos los clientes verán los cambios en tiempo real.
-
-## Entorno virtual (opcional pero recomendado)
+### Entorno virtual (opcional pero recomendado)
 
 Para evitar conflictos con otras instalaciones de Python y mantener organizadas las dependencias:
 
@@ -52,41 +43,113 @@ Para evitar conflictos con otras instalaciones de Python y mantener organizadas 
    python3 -m venv venv
    ```
 2. Activarlo
-### En Windows:
+
+**En Windows:**
 
   ```bash
    venv\Scripts\activate
    ```
 
-### En Linux/macOS:
+**En Linux/macOS:**
 
   ```bash
    source venv/bin/activate
    ```
 
-## Controles del cliente
+### Cómo ejecutar
+
+1. Clona el repositorio.
+2. Inicia el servidor:
+
+   ```bash
+   python3 servidor_sync.py
+   ```
+3. En otra(s) terminal(es), inicia uno o más clientes:
+   ```bash
+   python3 cliente_editor_saltos.py
+   ```
+4. Introduce un nombre de usuario.
+5. Comienza a escribir.
+
+### Controles del cliente
 
 - Flechas ← → ↑ ↓ para moverse por el texto
-- Teclas normales para escribir
+- Letras y símbolos para escribir
+- ENTER para salto de línea
 - Backspace para borrar
-- ENTER para insertar salto de línea
 - ESC para salir
 
-## Limitaciones actuales
+### Limitaciones actuales
 
-- El cursor puede comportarse de forma descoordinada tras ciertas operaciones de borrado.
-- No hay persistencia de datos (todo se pierde al cerrar).
-- No hay control de usuarios ni historial de versiones.
-- La reconexión automática aún no está implementada.
+- El cursor puede desincronizarse tras ciertos borrados
+- No hay persistencia (se pierde al cerrar)
+- No hay control de usuarios ni reconexión automática
 
-## Mejoras futuras
+### Mejoras futuras
 
-- Persistencia con base de datos (e.g., PostgreSQL)
-- Gestión de múltiples documentos y sesiones
+- Persistencia del documento (ej. con PostgreSQL)
+- Soporte para múltiples sesiones
 - Control de versiones y permisos
-- Visualización de actividad remota por usuario
-- Reconexión tras desconexión inesperada
+- Reentrada tras desconexión inesperada
 
-## Autor
+---
 
-Este proyecto fue desarrollado como parte de una práctica educativa para explorar el funcionamiento interno de los CRDTs y la colaboración en sistemas distribuidos.
+## 🌐 EDITOR COLABORATIVO EN WEB (Yjs + Quill + WebSockets)
+
+### Características
+
+- Edición en tiempo real en el navegador
+- Interfaz rica con formato (negrita, cursiva, enlaces)
+- CRDT Yjs para sincronización automática sin conflictos
+- Comunicación mediante WebSockets
+- Multiplataforma (varias pestañas o dispositivos)
+
+### Tecnologías usadas
+
+- Node.js
+- WebSockets (`ws`)
+- Yjs (CRDT)
+- Quill (editor WYSIWYG)
+- HTML5 y JavaScript (ECMAScript Modules)
+
+### Estructura de archivos
+
+- `server.js` – Servidor WebSocket para sincronización
+- `index.html` – Interfaz del editor + integración con Yjs
+- `package.json` – Dependencias del proyecto
+
+### Cómo ejecutar
+
+1. Instala las dependencias:
+   ```bash
+   npm install
+   ```
+2. Inicia el servidor:
+   ```bash
+   npm start
+   ```
+3. Abre `index.html` en dos pestañas usando Live Server o un servidor local.
+4. Escribe en una pestaña y observa los cambios en la otra.
+
+### Funcionamiento
+
+Cada cliente mantiene su propia instancia del documento Yjs. Los cambios se sincronizan con el servidor WebSocket, que los reenvía a los demás clientes. Quill proporciona la interfaz visual bidireccional.
+
+### Limitaciones actuales
+
+- No hay persistencia del contenido
+- Todos los usuarios están en la misma sala de edición
+- No hay gestión de usuarios ni control de versiones
+
+### Mejoras futuras
+
+- Soporte para múltiples documentos o salas
+- Guardado del contenido en base de datos
+- Autenticación y control de permisos
+- Historial de versiones y actividad por usuario
+
+---
+
+## ✍️ Autoras
+
+Este proyecto fue desarrollado por **Paula Segura Manzanares** y **Carmen Reine Rueda** como parte de una práctica educativa para explorar los fundamentos y aplicaciones de los CRDTs en entornos distribuidos.
